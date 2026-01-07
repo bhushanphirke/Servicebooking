@@ -1,42 +1,50 @@
 <?php
-include 'config.php';
-if(!isset($_SESSION['user_id'])){
-  header("Location: login.php");
-  exit;
+session_start();
+require_once "config.php";
+
+if (!isset($_SESSION['user_id'])) {
+    header("Location: login.php");
+    exit;
 }
+
+// Fetch all services
+$services = $conn->query("SELECT * FROM services");
 ?>
+
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Book Service</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <title>Book Service</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 </head>
 <body>
+<div class="container mt-5">
+    <h2 class="mb-4">Book a Service</h2>
 
-<div class="container my-5">
-  <div class="card shadow p-4">
-    <h3>Book Service</h3>
+    <?php while($service = $services->fetch_assoc()): ?>
+    <div class="card mb-3 shadow">
+        <div class="card-body">
+            <h5><?= $service['service_name'] ?></h5>
+            <p><?= $service['description'] ?></p>
 
-    <form method="POST" action="book_service.php">
-      <select name="service" class="form-control my-2" required>
-        <option value="">Select Service</option>
-        <option>Electrician</option>
-        <option>Plumber</option>
-        <option>Mechanic</option>
-        <option>Cleaner</option>
-      </select>
+            <form action="book_service.php" method="POST" class="mt-3">
+                <input type="hidden" name="service_id" value="<?= $service['id'] ?>">
 
-      <input type="date" name="date" class="form-control my-2" required>
-      <input type="time" name="time" class="form-control my-2" required>
+                <label>Date:</label>
+                <input type="date" name="booking_date" required class="form-control mb-2">
 
-      <textarea name="address" class="form-control my-2" placeholder="Service Address" required></textarea>
+                <label>Time:</label>
+                <input type="time" name="booking_time" required class="form-control mb-2">
 
-      <button name="book" class="btn btn-success">Confirm Booking</button>
-      <a href="index.php" class="btn btn-secondary mt-2">Back to Home</a>
-    </form>
+                <label>Address:</label>
+                <textarea name="address" required class="form-control mb-2" placeholder="Your address"></textarea>
 
-  </div>
+                <button type="submit" class="btn btn-primary w-100">Book Service</button>
+            </form>
+        </div>
+    </div>
+    <?php endwhile; ?>
 </div>
-
 </body>
 </html>
+
